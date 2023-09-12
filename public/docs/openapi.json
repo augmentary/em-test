@@ -1,0 +1,281 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EM Order API Test",
+    "description": "EM Order API Test",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Order",
+      "description": "Order endpoints"
+    }
+  ],
+  "paths": {
+    "/delivery-option": {
+      "get": {
+        "tags": [
+          "deliveryOption"
+        ],
+        "summary": "Get delivery options",
+        "description": "Get delivery options",
+        "operationId": "deliveryOptionIndex",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeliveryOption"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "tags": [
+          "order"
+        ],
+        "summary": "Add a new order to the store",
+        "description": "Add a new order to the store",
+        "operationId": "orderAdd",
+        "requestBody": {
+          "description": "Create a new order in the store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "order"
+        ],
+        "summary": "Finds orders by status or id",
+        "description": "Finds orders by status or id",
+        "operationId": "orderIndex",
+        "parameters": [
+          {
+            "name": "status[]",
+            "in": "query",
+            "description": "Order statuses that should be returned",
+            "required": false,
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "NEW",
+                  "DELAYED",
+                  "SHIPPED"
+                ]
+              }
+            }
+          },
+          {
+            "name": "id[]",
+            "in": "query",
+            "description": "Order IDs that should be returned",
+            "required": false,
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Order"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid order ID"
+          },
+          "422": {
+            "description": "Invalid status value"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "order"
+        ],
+        "summary": "Update an order's status",
+        "description": "Update an order's status",
+        "operationId": "orderUpdate",
+        "requestBody": {
+          "description": "Update an order's status",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Order": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "NEW",
+                  "DELAYED",
+                  "SHIPPED"
+                ]
+              },
+              "estimatedDeliveryDate": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/OrderCreate"
+          }
+        ]
+      },
+      "OrderCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "deliveryAddress": {
+            "type": "object",
+            "properties": {
+              "line1": {
+                "type": "string"
+              },
+              "line2": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "postCode": {
+                "type": "string"
+              }
+            }
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "identifier": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "deliveryOption": {
+            "type": "integer"
+          }
+        }
+      },
+      "OrderUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "DELAYED",
+              "SHIPPED"
+            ]
+          }
+        }
+      },
+      "DeliveryOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
